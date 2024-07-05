@@ -8,9 +8,6 @@ builds:
     goos:
       - darwin
     goarch:
-      - "386"
-      - amd64
-      - arm
       - arm64
     goarm:
       - "7"
