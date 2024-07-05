@@ -6,12 +6,7 @@ builds:
     env:
       - CGO_ENABLED=1
     goos:
-      {{- if eq .Os "linux" }}
-      - linux
-      {{- end }}
-      {{- if eq .Os "darwin" }}
       - darwin
-      {{- end }}
     goarch:
       - "386"
       - amd64
