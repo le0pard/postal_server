@@ -2,7 +2,6 @@
 # Make sure to check the documentation at http://goreleaser.com
 builds:
   - id: postal-server-build
-    dir: cli
     binary: postal_server
     env:
       - CGO_ENABLED=1
