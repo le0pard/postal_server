@@ -25,18 +25,28 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
+      - name: Install build packages
+        run: |
+          apt-get update -qq && apt-get install -yq --no-install-recommends \
+          build-essential \
+          curl \
+          autoconf \
+          automake \
+          libtool \
+          pkg-config
+
       - name: Install libpostal
         run: |
-          mkdir /libpostal_code
-          mkdir /libpostal_datadir
-          cd /libpostal_code
+          mkdir /tmp/libpostal_code
+          mkdir /tmp/libpostal_datadir
+          cd /tmp/libpostal_code
           git clone https://github.com/openvenues/libpostal
           cd libpostal
           ./bootstrap.sh
           ./configure --datadir=/libpostal_datadir
           make -j4
-          make install
-          ldconfig /usr/local/lib
+          sudo make install
+          sudo ldconfig /usr/local/lib
 
       - name: CLI tests
         run: |
