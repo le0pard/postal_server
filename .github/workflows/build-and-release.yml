@@ -50,7 +50,7 @@ jobs:
           pacman -S autoconf automake curl git make libtool gcc mingw-w64-x86_64-gcc
 
       - name: Install libpostal
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           mkdir /tmp/libpostal_code
           mkdir /tmp/libpostal_datadir
@@ -58,14 +58,23 @@ jobs:
           git clone https://github.com/openvenues/libpostal
           cd libpostal
           ./bootstrap.sh
-          ./configure --datadir=/libpostal_datadir
+          ./configure --datadir=/tmp/libpostal_datadir
           make -j4
           sudo make install
+          sudo ldconfig /usr/local/lib
 
       - name: Install libpostal
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          sudo ldconfig /usr/local/lib
+          mkdir /tmp/libpostal_code
+          mkdir /tmp/libpostal_datadir
+          cd /tmp/libpostal_code
+          git clone https://github.com/openvenues/libpostal
+          cd libpostal
+          ./bootstrap.sh
+          ./configure --datadir=/tmp/libpostal_datadir --disable-sse2
+          make -j4
+          sudo make install
 
       - name: Install libpostal
         if: ${{ matrix.os == 'windows-latest' }}
@@ -77,7 +86,7 @@ jobs:
           cd libpostal
           cp -rf windows/* ./
           ./bootstrap.sh
-          ./configure --datadir=/libpostal_datadir
+          ./configure --datadir=/tmp/libpostal_datadir
           make -j4
           make install
 
