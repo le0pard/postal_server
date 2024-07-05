@@ -70,6 +70,7 @@ jobs:
           ./configure --datadir=/tmp/libpostal_datadir --disable-sse2
           make -j4
           sudo make install
+        working-directory: /tmp/libpostal_code/libpostal
 
       - name: CLI tests
         run: |
