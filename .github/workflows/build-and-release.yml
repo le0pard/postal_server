@@ -25,6 +25,19 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
+      - name: Install libpostal
+        run: |
+          mkdir /libpostal_code
+          mkdir /libpostal_datadir
+          cd /libpostal_code
+          git clone https://github.com/openvenues/libpostal
+          cd libpostal
+          ./bootstrap.sh
+          ./configure --datadir=/libpostal_datadir
+          make -j4
+          make install
+          ldconfig /usr/local/lib
+
       - name: CLI tests
         run: |
           go mod tidy
