@@ -42,8 +42,8 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 
-snapshot:
-  name_template: "{{ .Tag }}"
+# snapshot:
+#   name_template: "{{ .Tag }}"
 
 # signs:
 #   - artifacts: checksum
@@ -52,13 +52,13 @@ snapshot:
 sboms:
   - artifacts: archive
 
-changelog:
-  sort: asc
-  use: github
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+# changelog:
+#   sort: asc
+#   use: github
+#   filters:
+#     exclude:
+#       - '^docs:'
+#       - '^test:'
 
 # brews:
 #   -
