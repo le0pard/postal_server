@@ -45,17 +45,6 @@ COPY . ./
 # Build the binary.
 RUN go build -trimpath -ldflags="-s -w" -v -o postal_server
 
-# Use the official Debian slim image for a lean production container.
-# https://hub.docker.com/_/debian
-# https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
-# FROM debian:bookworm-slim
-# RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-#   ca-certificates && \
-#   rm -rf /var/lib/apt/lists/*
-
-# Copy the binary to the production image from the builder stage.
-# COPY --from=builder /app/postal_server /app/postal_server
-
 EXPOSE 8000
 # Run the web service on container startup.
 CMD ["/app/postal_server"]
