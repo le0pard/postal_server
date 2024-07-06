@@ -5,9 +5,11 @@ FROM golang:1.22
 
 # args
 ARG GIN_MODE=release
+ARG LIBPOSTAL_CONFIGURE_FLAGS=
 
 # Set up environment variables
-ENV GIN_MODE=${GIN_MODE}
+ENV GIN_MODE=${GIN_MODE} \
+  LIBPOSTAL_CONFIGURE_FLAGS=${LIBPOSTAL_CONFIGURE_FLAGS}
 
 # Install packages needed to build gems
 RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
@@ -24,7 +26,7 @@ RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
 RUN git clone https://github.com/openvenues/libpostal /code/libpostal
 WORKDIR /code/libpostal
 RUN ./bootstrap.sh && \
-  ./configure --datadir=/usr/share/libpostal --disable-sse2 && \
+  ./configure --datadir=/usr/share/libpostal ${LIBPOSTAL_CONFIGURE_FLAGS} && \
   make -j4 && make check && make install && \
   ldconfig
 
