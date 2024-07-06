@@ -4,6 +4,10 @@ This Docker image provides a web server that grants access to the [libpostal](ht
 
 [Ready docker image](https://github.com/le0pard/postal_server/pkgs/container/postal_server)
 
+```bash
+docker pull ghcr.io/le0pard/postal_server:latest
+```
+
 ## Usage
 
 To expand address strings into normalized forms suitable for geocoder queries, use the `/expand` endpoint with the `address` query parameter. For example, to expand the address "Quatre-vingt-douze Ave des Ave des Champs-Élysées":
