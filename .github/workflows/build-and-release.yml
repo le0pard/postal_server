@@ -59,7 +59,7 @@ jobs:
         with:
           context: .
           push: true
-          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/386,linux/amd64,linux/arm64' }}
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64,linux/arm64' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
