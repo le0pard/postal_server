@@ -62,6 +62,8 @@ jobs:
           platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64,linux/arm64' || 'darwin' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             ${{ matrix.os == 'macos-latest' && 'LIBPOSTAL_CONFIGURE_FLAGS=--disable-sse2' }}
 
