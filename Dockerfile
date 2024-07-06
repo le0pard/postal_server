@@ -4,7 +4,7 @@
 FROM golang:1.22
 
 # args
-ARG BUILDARCH
+ARG TARGETARCH
 ARG GIN_MODE=release
 
 # Set up environment variables
@@ -22,11 +22,11 @@ RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
 
 # install libpostal
 
-RUN echo $BUILDARCH
+RUN echo $TARGETARCH
 RUN git clone https://github.com/openvenues/libpostal /code/libpostal
 WORKDIR /code/libpostal
 RUN ./bootstrap.sh && \
-  ./configure --datadir=/usr/share/libpostal $([ "$BUILDARCH" = "arm64" ] && echo "--disable-sse2" || echo "") && \
+  ./configure --datadir=/usr/share/libpostal $([ "$TARGETARCH" = "arm64" ] && echo "--disable-sse2" || echo "") && \
   make -j4 && make check && make install && \
   ldconfig
 
