@@ -1,12 +1,12 @@
 # Postal web server
 
-Docker image with webserver, which provide access to [libpostal](https://github.com/openvenues/libpostal) library. Can be used for for parsing/normalizing street addresses around the world.
+This Docker image provides a web server that grants access to the [libpostal](https://github.com/openvenues/libpostal) library, enabling the parsing and normalization of street addresses globally.
 
 [Ready docker image](https://github.com/le0pard/postal_server/pkgs/container/postal_server)
 
 ## Usage
 
-To expand address strings into normalized forms suitable for geocoder queries you need to use `/expand` endpoint with `address` query parameter. Example to expand "Quatre-vingt-douze Ave des Ave des Champs-Élysées" address:
+To expand address strings into normalized forms suitable for geocoder queries, use the `/expand` endpoint with the `address` query parameter. For example, to expand the address "Quatre-vingt-douze Ave des Ave des Champs-Élysées":
 
 ```bash
 GET /expand?address=Quatre-vingt-douze%20Ave%20des%20Ave%20des%20Champs-Élysées
@@ -18,10 +18,12 @@ GET /expand?address=Quatre-vingt-douze%20Ave%20des%20Ave%20des%20Champs-Élysée
 ]
 ```
 
-To parse addresses into components you need to use `/parse` endpoint with `address` query parameter. Example to parse "781 Franklin Ave Crown Heights Brooklyn NY 11216 USA" address:
+This will provide the expanded and normalized addresses ready for geocoding queries.
+
+To parse addresses into components, use the `/parse` endpoint with the `address` query parameter. For example, to parse the address "781 Franklin Ave Crown Heights Brooklyn NY 11216 USA":
 
 ```bash
-GET /expand?address=Quatre-vingt-douze%20Ave%20des%20Ave%20des%20Champs-Élysées
+GET /parse?address=781%20Franklin%20Ave%20Crown%20Heights%20Brooklyn%20NY%2011216%20USA
 
 [
   {
@@ -54,6 +56,8 @@ GET /expand?address=Quatre-vingt-douze%20Ave%20des%20Ave%20des%20Champs-Élysée
   }
 ]
 ```
+
+This will break down the address into its individual components
 
 Endpoint `/health` can be use to check webserver healthcheck (like in k8s env):
 
