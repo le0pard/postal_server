@@ -1,10 +1,9 @@
 name: "Build and Release"
 
-on: push
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+on:
+  push:
+    branches:
+     - main
 
 permissions:
   contents: read
@@ -14,6 +13,8 @@ permissions:
 
 env:
   GO_VERSION: 1.22.1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
