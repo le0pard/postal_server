@@ -45,7 +45,7 @@ RUN go mod download
 COPY . ./
 
 # Build the binary.
-RUN go build -trimpath -ldflags='-s -w -X github.com/le0pard/postal_server/version.Version=$BUILD_VERSION -X github.com/le0pard/postal_server/version.GitCommit=$BUILD_GIT_COMMIT -X github.com/le0pard/postal_server/version.BuildTime="$(TZ=UTC date +"%Y-%m-%dT%H:%M:%S%z")"' -v -o postal_server
+RUN go build -trimpath -ldflags="-s -w -X github.com/le0pard/postal_server/version.Version=$BUILD_VERSION -X github.com/le0pard/postal_server/version.GitCommit=$BUILD_GIT_COMMIT -X github.com/le0pard/postal_server/version.BuildTime=$(TZ=UTC date +"%Y-%m-%dT%H:%M:%S%z")" -v -o postal_server
 
 EXPOSE 8000
 # Run the web service on container startup.
