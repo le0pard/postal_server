@@ -21,7 +21,7 @@ jobs:
     name: Build
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -32,7 +32,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-13' }}
         uses: crazy-max/ghaction-setup-docker@v3
 
       - name: Set up Docker Buildx
