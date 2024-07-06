@@ -60,4 +60,3 @@ jobs:
           build-args: |
             BUILD_VERSION=${{ github.ref_name }}
             BUILD_GIT_COMMIT=${{ github.sha }}
-            BUILD_TIME="$(TZ=UTC date +"%Y-%m-%dT%H:%M:%S%z")"
