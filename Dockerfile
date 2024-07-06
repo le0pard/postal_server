@@ -5,6 +5,7 @@ FROM golang:1.22
 
 # args
 ARG TARGETARCH
+ARG BUILD_TIME
 ARG BUILD_VERSION
 ARG BUILD_GIT_COMMIT
 ARG GIN_MODE=release
@@ -45,8 +46,7 @@ RUN go mod download
 COPY . ./
 
 # Build the binary.
-RUN BUILD_TIME=$(date +"%Y-%m-%dT%H:%M:%S%z") \
-  go build -trimpath -ldflags="-s -w" -ldflags="-X github.com/le0pard/postal_server/version.Version=${BUILD_VERSION}" -ldflags="-X github.com/le0pard/postal_server/version.GitCommit=${BUILD_GIT_COMMIT}" -ldflags="-X github.com/le0pard/postal_server/version.BuildTime=${BUILD_TIME}" -v -o postal_server
+RUN go build -trimpath -ldflags="-s -w -X github.com/le0pard/postal_server/version.Version=$BUILD_VERSION -X github.com/le0pard/postal_server/version.GitCommit=$BUILD_GIT_COMMIT -X github.com/le0pard/postal_server/version.BuildTime=$BUILD_TIME" -v -o postal_server
 
 EXPOSE 8000
 # Run the web service on container startup.
