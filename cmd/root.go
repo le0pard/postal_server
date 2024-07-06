@@ -25,13 +25,14 @@ const EnvPrefix string = "POSTAL_SERVER"
 var (
 	cfgFile        string
 	EnvStrReplacer = strings.NewReplacer(".", "_")
+	Version        = fmt.Sprintf("%s, date %s, build %s", version.Version, version.BuildTime, version.GitCommit)
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:                   "postal_server",
 	Short:                 "A brief description of your application",
-	Version:               fmt.Sprintf("%s, date %s, build %s", version.Version, version.BuildTime, version.GitCommit),
+	Version:               Version,
 	SilenceUsage:          true,
 	SilenceErrors:         true,
 	DisableFlagsInUseLine: true,
@@ -51,26 +52,42 @@ to quickly create a Cobra application.`,
 			r.SetTrustedProxies(viper.GetStringSlice("trusted_proxies"))
 		}
 
-		// expand libpostal
-		r.POST("/expand_address", func(c *gin.Context) {
-			gopostalExpand.ExpandAddress("Quatre-vingt-douze Ave des Ave des Champs-Élysées")
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-			})
-		})
-
-		// parse libpostal
-		r.POST("/parse_address", func(c *gin.Context) {
-			gopostalParser.ParseAddress("781 Franklin Ave Crown Heights Brooklyn NY 11216 USA")
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-			})
-		})
-
 		// healthcheck endpoint
 		r.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"status": "ok",
+			})
+		})
+
+		// basic auth
+		if viper.IsSet("basic_auth_username") && viper.IsSet("basic_auth_password") {
+			r.Use(gin.BasicAuth(gin.Accounts{
+				viper.GetString("basic_auth_username"): viper.GetString("basic_auth_password"),
+			}))
+		}
+		// bearer token auth
+		if viper.IsSet("bearer_auth_token") {
+			r.Use(MiddlewareWithStaticToken(viper.GetString("bearer_auth_token")))
+		}
+
+		// expand libpostal
+		r.GET("/expand", func(c *gin.Context) {
+			address := c.DefaultQuery("address", "")
+			expansions := gopostalExpand.ExpandAddress(address)
+			c.JSON(http.StatusOK, expansions)
+		})
+
+		// parse libpostal
+		r.GET("/parse", func(c *gin.Context) {
+			address := c.DefaultQuery("address", "")
+			parsed := gopostalParser.ParseAddress(address)
+			c.JSON(http.StatusOK, parsed)
+		})
+
+		// root
+		r.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"version": Version,
 			})
 		})
 
@@ -175,6 +192,6 @@ func init() {
 	viper.BindPFlag("basic_auth_password", rootCmd.PersistentFlags().Lookup("basic_auth_password"))
 	rootCmd.MarkFlagsRequiredTogether("basic_auth_username", "basic_auth_password")
 
-	rootCmd.Flags().String("bearer_token", "", "bearer authentication token")
-	viper.BindPFlag("bearer_token", rootCmd.PersistentFlags().Lookup("bearer_token"))
+	rootCmd.Flags().String("bearer_auth_token", "", "bearer authentication token")
+	viper.BindPFlag("bearer_auth_token", rootCmd.PersistentFlags().Lookup("bearer_auth_token"))
 }
