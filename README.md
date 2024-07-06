@@ -82,8 +82,5 @@ POSTAL_SERVER_BEARER_AUTH_TOKEN - bearer auth token
 Local build:
 
 ```bash
-# x86 linux or mac os
 docker build -t postal-server .
-# mac os with apple silicon
-docker build -t postal-server --build-arg LIBPOSTAL_CONFIGURE_FLAGS=--disable-sse2 .
 ```

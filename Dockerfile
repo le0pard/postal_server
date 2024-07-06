@@ -4,12 +4,11 @@
 FROM golang:1.22
 
 # args
+ARG BUILDARCH
 ARG GIN_MODE=release
-ARG LIBPOSTAL_CONFIGURE_FLAGS=
 
 # Set up environment variables
-ENV GIN_MODE=${GIN_MODE} \
-  LIBPOSTAL_CONFIGURE_FLAGS=${LIBPOSTAL_CONFIGURE_FLAGS}
+ENV GIN_MODE=${GIN_MODE}
 
 # Install packages needed to build gems
 RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
@@ -23,10 +22,11 @@ RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
 
 # install libpostal
 
+RUN echo $BUILDARCH
 RUN git clone https://github.com/openvenues/libpostal /code/libpostal
 WORKDIR /code/libpostal
 RUN ./bootstrap.sh && \
-  ./configure --datadir=/usr/share/libpostal ${LIBPOSTAL_CONFIGURE_FLAGS} && \
+  ./configure --datadir=/usr/share/libpostal $([ "$BUILDARCH" = "arm64" ] && echo "--disable-sse2" || echo "") && \
   make -j4 && make check && make install && \
   ldconfig
 
