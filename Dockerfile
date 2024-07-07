@@ -5,8 +5,8 @@ FROM golang:1.22
 
 # args
 ARG TARGETARCH
-ARG BUILD_VERSION
-ARG BUILD_GIT_COMMIT
+ARG BUILD_VERSION=
+ARG BUILD_GIT_COMMIT=
 ARG GIN_MODE=release
 
 # Set up environment variables

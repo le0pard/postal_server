@@ -31,18 +31,13 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:                   "postal_server",
-	Short:                 "A brief description of your application",
+	Short:                 "Postal web server offers advanced capabilities for parsing and standardizing street addresses",
 	Version:               Version,
 	SilenceUsage:          true,
 	SilenceErrors:         true,
 	DisableFlagsInUseLine: true,
 	TraverseChildren:      true,
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:                  `Postal web server that grants access to the libpostal library, enabling the parsing and normalization of street addresses globally`,
 	Run: func(cmd *cobra.Command, args []string) {
 		r := gin.New()
 
