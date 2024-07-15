@@ -156,16 +156,10 @@ func initConfig() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.postal_server.yaml)")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.postal_server.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.SetVersionTemplate("Certonid version {{.Version}}\n")
+	rootCmd.SetVersionTemplate("PostalServer version {{.Version}}\n")
 
 	rootCmd.PersistentFlags().Bool("debug", false, "use debug logging")
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
