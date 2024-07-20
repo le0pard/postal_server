@@ -44,6 +44,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/le0pard/postal_server
+            org.opencontainers.image.description=Postal web server offers advanced capabilities for parsing and standardizing street addresses
+            org.opencontainers.image.licenses=MIT
 
       - name: Build and push
         id: push
