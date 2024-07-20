@@ -25,7 +25,7 @@ func Middleware(tokenVerificationFunc TokenVerificationFunc) gin.HandlerFunc {
 
 		// The value of authorization header is invalid
 		// It should start with "Bearer ", then the token value
-		if len(authTokens) != 2 || authTokens[0] != "Bearer" {
+		if len(authTokens) != 2 || strings.ToLower(authTokens[0]) != "bearer" {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
