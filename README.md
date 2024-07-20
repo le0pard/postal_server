@@ -70,6 +70,10 @@ $ curl http://localhost:8000/health
 {"status":"ok"}
 ```
 
+## Auth for server
+
+You can set up either basic authentication or bearer token authentication to protect your web server, while keeping the `/health` endpoint public
+
 ## Configuration
 
 Configuration environment variables:
