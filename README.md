@@ -80,7 +80,7 @@ Configuration environment variables:
 
 ```ini
 POSTAL_SERVER_HOST - server host (default: 0.0.0.0)
-POSTAL_SERVER_PORT - server port (default: 8000)
+POSTAL_SERVER_PORT or PORT - server port (default: 8000)
 POSTAL_SERVER_TRUSTED_PROXIES - trusted proxies IP addresses (separated by comma)
 POSTAL_SERVER_LOG_FORMAT - log format, can be "json" or "text" (default: "text")
 POSTAL_SERVER_LOG_LEVEL - log level (default: "info")

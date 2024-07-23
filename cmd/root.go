@@ -168,6 +168,7 @@ func init() {
 	viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
 	rootCmd.PersistentFlags().IntP("port", "p", 8000, "server port")
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
+	viper.BindEnv("port", "PORT")
 	rootCmd.PersistentFlags().StringSliceP("trusted_proxies", "t", []string{}, "trusted proxies IP addresses (separated by commas)")
 	viper.BindPFlag("trusted_proxies", rootCmd.PersistentFlags().Lookup("trusted_proxies"))
 
