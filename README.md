@@ -61,7 +61,7 @@ GET /parse?address=781%20Franklin%20Ave%20Crown%20Heights%20Brooklyn%20NY%201121
 ]
 ```
 
-This will break down the address into its individual components.
+This will break down the address into its [individual components](https://github.com/openvenues/libpostal?tab=readme-ov-file#parser-labels).
 
 Endpoint `/health` can be use to check webserver healthcheck (like in k8s env):
 
