@@ -28,7 +28,7 @@ RUN echo $TARGETARCH
 RUN git clone https://github.com/openvenues/libpostal /code/libpostal
 WORKDIR /code/libpostal
 RUN ./bootstrap.sh && \
-  ./configure --datadir=/usr/share/libpostal $([ "$TARGETARCH" = "arm64" ] && echo "--disable-sse2" || echo "") && \
+  ./configure --datadir=/usr/share/libpostal && \
   make -j4 && make check && make install && \
   ldconfig
 
