@@ -20,7 +20,6 @@ RUN apt-get update -qq && apt-get install -yq --no-install-recommends \
   automake \
   libtool \
   pkg-config \
-  gmake \
   git \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
