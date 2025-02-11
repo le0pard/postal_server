@@ -27,9 +27,6 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
-    concurrency:
-      group: build-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
     steps:
       - name: Prepare
         run: |
