@@ -1,6 +1,6 @@
 # Postal web server
 
-This Docker image provides a web server that grants access to the [libpostal](https://github.com/openvenues/libpostal) library, enabling the parsing and normalization of street addresses globally.
+This Docker image provides a web server that grants access to the [libpostal](https://github.com/openvenues/libpostal) library, enabling the parsing and normalization of street addresses globally. It need at least 2Gb of RAM (use 4GB for safety)
 
 [Ready docker image](https://github.com/le0pard/postal_server/pkgs/container/postal_server)
 
