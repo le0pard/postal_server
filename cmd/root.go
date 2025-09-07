@@ -41,7 +41,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		r := gin.New()
 
-		r.UseH2C = viper.IsSet("h2c")
+		r.UseH2C = viper.GetBool("h2c")
 		r.Use(gin.Recovery())
 		r.Use(ginzerolog.Logger("postal_server"))
 		if viper.IsSet("trusted_proxies") {
@@ -108,7 +108,7 @@ func initLogging() {
 	}
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if viper.IsSet("debug") {
+	if viper.GetBool("debug") {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 		return
 	}
