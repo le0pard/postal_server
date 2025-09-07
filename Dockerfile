@@ -1,7 +1,7 @@
 # Use the offical golang image to create a binary.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
-FROM golang:1.24
+FROM golang:1.25
 
 # args
 ARG TARGETARCH

@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		r := gin.New()
 
+		r.UseH2C = viper.IsSet("h2c")
 		r.Use(gin.Recovery())
 		r.Use(ginzerolog.Logger("postal_server"))
 		if viper.IsSet("trusted_proxies") {
@@ -163,6 +164,9 @@ func init() {
 
 	rootCmd.PersistentFlags().Bool("debug", false, "use debug logging")
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+
+	rootCmd.PersistentFlags().Bool("h2c", false, "whether to use http2 h2c, default false")
+	viper.BindPFlag("h2c", rootCmd.PersistentFlags().Lookup("h2c"))
 
 	rootCmd.PersistentFlags().StringP("host", "H", "0.0.0.0", "server host")
 	viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))

@@ -87,6 +87,8 @@ POSTAL_SERVER_LOG_LEVEL - log level (default: "info")
 POSTAL_SERVER_BASIC_AUTH_USERNAME - basic auth username (required if basic auth password is set)
 POSTAL_SERVER_BASIC_AUTH_PASSWORD - basic auth password (required if basic auth username is set)
 POSTAL_SERVER_BEARER_AUTH_TOKEN - bearer auth token
+POSTAL_SERVER_H2C - whether to use http2 h2c, default false
+POSTAL_SERVER_DEBUG - enable debug mode, default false
 ```
 
 ## Development
