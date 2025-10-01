@@ -10,6 +10,8 @@ docker pull ghcr.io/le0pard/postal_server:latest
 
 ## Usage
 
+### Expand address
+
 To expand address strings into normalized forms suitable for geocoder queries, use the `/expand` endpoint with the `address` query parameter. For example, to expand the address "Quatre-vingt-douze Ave des Ave des Champs-Élysées":
 
 ```bash
@@ -23,6 +25,42 @@ GET /expand?address=Quatre-vingt-douze%20Ave%20des%20Ave%20des%20Champs-Élysée
 ```
 
 This will provide the expanded and normalized addresses ready for geocoding queries.
+
+Support additional parameters:
+
+- `languages`: An array of language codes (e.g., ["en", "fr"]) to help with expansion
+- `address_components`: A bitmask of address components to expand
+- `latin_ascii`: Transliterate to Latin ASCII (true/false)
+- `transliterate`: Transliterate to the script of the first language (true/false)
+- `strip_accents`: Strip accents from the address (true/false)
+- `decompose`: Decompose diacritics and other characters (true/false)
+- `lowercase`: Convert the address to lowercase (true/false)
+- `trim_string`: Trim leading and trailing whitespace (true/false)
+- `replace_word_hyphens`: Replace hyphens in words with spaces (true/false)
+- `delete_word_hyphens`: Delete hyphens in words (true/false)
+- `replace_numeric_hyphens`: Replace hyphens in numbers with spaces (true/false)
+- `delete_numeric_hyphens`: Delete hyphens in numbers (true/false)
+- `split_alpha_from_numeric`: Split alphabetic and numeric parts of the address (true/false)
+- `delete_final_periods`: Deletes final periods (true/false)
+- `delete_acronym_periods`: Deletes periods in acronyms (e.g., "U.S.A." -> "USA") (true/false)
+- `drop_english_possessives`: Drops "'s" from the end of tokens (e.g., "St. James's" -> "St. James") (true/false)
+- `delete_apostrophes`: Deletes apostrophes (true/false)
+- `expand_numex`: Expands numeric expressions (e.g., "Twenty-third" -> "23rd") (true/false)
+- `roman_numerals`: Converts Roman numerals to integers (e.g., "II" -> "2") (true/false)
+
+You also can select which parts of the address to expand. If not provided, a default set of components is used
+
+- `address_name`: The name of a venue, organization, or building
+- `address_house_number`: The house or building number
+- `address_street`: The street name
+- `address_po_box`: Post office box numbers
+- `address_unit`: An apartment, suite, or office number
+- `address_level`: A floor or level number
+- `address_entrance`: An entrance identifier, like "Lobby A"
+- `address_staircase`: A staircase identifier
+- `address_postal_code`: The postal code
+
+### Parse address
 
 To parse addresses into components, use the `/parse` endpoint with the `address` query parameter. For example, to parse the address "781 Franklin Ave Crown Heights Brooklyn NY 11216 USA":
 
@@ -61,7 +99,14 @@ GET /parse?address=781%20Franklin%20Ave%20Crown%20Heights%20Brooklyn%20NY%201121
 ]
 ```
 
+Support additional parameters:
+
+- `language`: The language of the address (e.g., "en")
+- `country`: The country of the address (e.g., "us")
+
 This will break down the address into its [individual components](https://github.com/openvenues/libpostal?tab=readme-ov-file#parser-labels).
+
+### Healthcheck
 
 Endpoint `/health` can be use to check webserver healthcheck (like in k8s env):
 
