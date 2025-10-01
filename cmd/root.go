@@ -3,7 +3,9 @@ package cmd
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,10 +25,93 @@ import (
 const EnvPrefix string = "POSTAL_SERVER"
 
 var (
-	cfgFile        string
-	EnvStrReplacer = strings.NewReplacer(".", "_")
-	Version        = fmt.Sprintf("%s, date %s, build %s", version.Version, version.BuildTime, version.GitCommit)
+	cfgFile                      string
+	EnvStrReplacer               = strings.NewReplacer(".", "_")
+	Version                      = fmt.Sprintf("%s, date %s, build %s", version.Version, version.BuildTime, version.GitCommit)
+	queryParamToAddressComponent = map[string]uint16{
+		"address_name":         gopostalExpand.AddressName,
+		"address_house_number": gopostalExpand.AddressHouseNumber,
+		"address_street":       gopostalExpand.AddressStreet,
+		"address_po_box":       gopostalExpand.AddressPoBox,
+		"address_unit":         gopostalExpand.AddressUnit,
+		"address_level":        gopostalExpand.AddressLevel,
+		"address_entrance":     gopostalExpand.AddressEntrance,
+		"address_staircase":    gopostalExpand.AddressStaircase,
+		"address_postal_code":  gopostalExpand.AddressPostalCode,
+	}
 )
+
+func mapQueryParamsOnExpandOptions(options gopostalExpand.ExpandOptions, queryParams url.Values) gopostalExpand.ExpandOptions {
+	for key, values := range queryParams {
+		switch strings.ToLower(key) {
+		case "languages":
+			options.Languages = values
+		case "latin_ascii": // true
+			options.LatinAscii = stringToBool(values[0])
+		case "transliterate": // true
+			options.Transliterate = stringToBool(values[0])
+		case "strip_accents": // true
+			options.StripAccents = stringToBool(values[0])
+		case "lowercase": // true
+			options.Lowercase = stringToBool(values[0])
+		case "trim_string": // true
+			options.TrimString = stringToBool(values[0])
+		case "replace_word_hyphens": // true
+			options.ReplaceWordHyphens = stringToBool(values[0])
+		case "delete_word_hyphens": // true
+			options.DeleteWordHyphens = stringToBool(values[0])
+		case "replace_numeric_hyphens": // false
+			options.ReplaceNumericHyphens = stringToBool(values[0])
+		case "delete_numeric_hyphens": // false
+			options.DeleteNumericHyphens = stringToBool(values[0])
+		case "split_alpha_from_numeric": // true
+			options.SplitAlphaFromNumeric = stringToBool(values[0])
+		case "delete_final_periods": // true
+			options.DeleteFinalPeriods = stringToBool(values[0])
+		case "delete_acronym_periods": // true
+			options.DeleteAcronymPeriods = stringToBool(values[0])
+		case "drop_english_possessives": // true
+			options.DropEnglishPossessives = stringToBool(values[0])
+		case "delete_apostrophes": // true
+			options.DeleteApostrophes = stringToBool(values[0])
+		case "expand_numex": // true
+			options.ExpandNumex = stringToBool(values[0])
+		case "roman_numerals": // true
+			options.RomanNumerals = stringToBool(values[0])
+		}
+	}
+
+	if newComponents, found := parseAddressComponents(queryParams); found {
+		options.AddressComponents = newComponents
+	}
+
+	return options
+}
+
+func parseAddressComponents(queryParams url.Values) (uint16, bool) {
+	var components uint16 = gopostalExpand.AddressNone
+	var found bool = false
+
+	for key := range queryParams {
+		// Look up the component constant for the given query parameter key.
+		if component, ok := queryParamToAddressComponent[key]; ok {
+			found = true
+			// If found, combine it with the existing components using bitwise OR.
+			components |= component
+		}
+	}
+
+	return components, found
+}
+
+func stringToBool(s string) bool {
+	if s != "" {
+		if boolValue, err := strconv.ParseBool(s); err == nil {
+			return boolValue
+		}
+	}
+	return false
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -68,15 +153,33 @@ var rootCmd = &cobra.Command{
 
 		// expand libpostal
 		r.GET("/expand", func(c *gin.Context) {
+			queryParams := c.Request.URL.Query()
 			address := c.DefaultQuery("address", "")
-			expansions := gopostalExpand.ExpandAddress(address)
+
+			options := gopostalExpand.GetDefaultExpansionOptions()
+			expansions := gopostalExpand.ExpandAddressOptions(
+				address,
+				mapQueryParamsOnExpandOptions(
+					options,
+					queryParams,
+				),
+			)
 			c.JSON(http.StatusOK, expansions)
 		})
 
 		// parse libpostal
 		r.GET("/parse", func(c *gin.Context) {
 			address := c.DefaultQuery("address", "")
-			parsed := gopostalParser.ParseAddress(address)
+			language := c.DefaultQuery("language", "")
+			country := c.DefaultQuery("country", "")
+
+			parsed := gopostalParser.ParseAddressOptions(
+				address,
+				gopostalParser.ParserOptions{
+					Language: language,
+					Country:  country,
+				},
+			)
 			c.JSON(http.StatusOK, parsed)
 		})
 
