@@ -29,24 +29,26 @@ This will provide the expanded and normalized addresses ready for geocoding quer
 Support additional parameters:
 
 - `languages`: An array of language codes (e.g., ["en", "fr"]) to help with expansion
-- `address_components`: A bitmask of address components to expand
-- `latin_ascii`: Transliterate to Latin ASCII (true/false)
-- `transliterate`: Transliterate to the script of the first language (true/false)
-- `strip_accents`: Strip accents from the address (true/false)
-- `decompose`: Decompose diacritics and other characters (true/false)
-- `lowercase`: Convert the address to lowercase (true/false)
-- `trim_string`: Trim leading and trailing whitespace (true/false)
-- `replace_word_hyphens`: Replace hyphens in words with spaces (true/false)
-- `delete_word_hyphens`: Delete hyphens in words (true/false)
-- `replace_numeric_hyphens`: Replace hyphens in numbers with spaces (true/false)
-- `delete_numeric_hyphens`: Delete hyphens in numbers (true/false)
-- `split_alpha_from_numeric`: Split alphabetic and numeric parts of the address (true/false)
-- `delete_final_periods`: Deletes final periods (true/false)
-- `delete_acronym_periods`: Deletes periods in acronyms (e.g., "U.S.A." -> "USA") (true/false)
-- `drop_english_possessives`: Drops "'s" from the end of tokens (e.g., "St. James's" -> "St. James") (true/false)
-- `delete_apostrophes`: Deletes apostrophes (true/false)
-- `expand_numex`: Expands numeric expressions (e.g., "Twenty-third" -> "23rd") (true/false)
-- `roman_numerals`: Converts Roman numerals to integers (e.g., "II" -> "2") (true/false)
+- `address_components`: An array of strings specifying which parts of the address to expand. If not provided, a default set of components is used. See the **Address Components** section below for all available values.
+- `latin_ascii`: Transliterate to Latin ASCII (`true` default value)
+- `transliterate`: Transliterate to the script of the first language (`true` default value)
+- `strip_accents`: Strip accents from the address (`true` default value)
+- `decompose`: Decompose diacritics and other characters (`true` default value)
+- `lowercase`: Convert the address to lowercase (`true` default value)
+- `trim_string`: Trim leading and trailing whitespace (`true` default value)
+- `replace_word_hyphens`: Replace hyphens in words with spaces (`true` default value)
+- `delete_word_hyphens`: Delete hyphens in words (`true` default value)
+- `replace_numeric_hyphens`: Replace hyphens in numbers with spaces (`false` default value)
+- `delete_numeric_hyphens`: Delete hyphens in numbers (`false` default value)
+- `split_alpha_from_numeric`: Split alphabetic and numeric parts of the address (`true` default value)
+- `delete_final_periods`: Deletes final periods (`true` default value)
+- `delete_acronym_periods`: Deletes periods in acronyms (e.g., "U.S.A." -> "USA") (`true` default value)
+- `drop_english_possessives`: Drops "'s" from the end of tokens (e.g., "St. James's" -> "St. James") (`true` default value)
+- `delete_apostrophes`: Deletes apostrophes (`true` default value)
+- `expand_numex`: Expands numeric expressions (e.g., "Twenty-third" -> "23rd") (`true` default value)
+- `roman_numerals`: Converts Roman numerals to integers (e.g., "II" -> "2") (`true` default value)
+
+#### Address Components
 
 You also can select which parts of the address to expand. If not provided, a default set of components is used
 
