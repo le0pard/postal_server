@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"strings"
 
@@ -42,7 +43,7 @@ func Middleware(tokenVerificationFunc TokenVerificationFunc) gin.HandlerFunc {
 
 func MiddlewareWithStaticToken(token string) gin.HandlerFunc {
 	return Middleware(func(s string, c *gin.Context) bool {
-		if s != token {
+		if subtle.ConstantTimeCompare([]byte(s), []byte(token)) != 1 {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return false
 		}

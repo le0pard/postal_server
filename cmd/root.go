@@ -42,43 +42,56 @@ var (
 )
 
 func mapQueryParamsOnExpandOptions(options gopostalExpand.ExpandOptions, queryParams url.Values) gopostalExpand.ExpandOptions {
-	for key, values := range queryParams {
-		switch strings.ToLower(key) {
-		case "languages":
-			options.Languages = values
-		case "latin_ascii": // true
-			options.LatinAscii = stringToBool(values[0])
-		case "transliterate": // true
-			options.Transliterate = stringToBool(values[0])
-		case "strip_accents": // true
-			options.StripAccents = stringToBool(values[0])
-		case "lowercase": // true
-			options.Lowercase = stringToBool(values[0])
-		case "trim_string": // true
-			options.TrimString = stringToBool(values[0])
-		case "replace_word_hyphens": // true
-			options.ReplaceWordHyphens = stringToBool(values[0])
-		case "delete_word_hyphens": // true
-			options.DeleteWordHyphens = stringToBool(values[0])
-		case "replace_numeric_hyphens": // false
-			options.ReplaceNumericHyphens = stringToBool(values[0])
-		case "delete_numeric_hyphens": // false
-			options.DeleteNumericHyphens = stringToBool(values[0])
-		case "split_alpha_from_numeric": // true
-			options.SplitAlphaFromNumeric = stringToBool(values[0])
-		case "delete_final_periods": // true
-			options.DeleteFinalPeriods = stringToBool(values[0])
-		case "delete_acronym_periods": // true
-			options.DeleteAcronymPeriods = stringToBool(values[0])
-		case "drop_english_possessives": // true
-			options.DropEnglishPossessives = stringToBool(values[0])
-		case "delete_apostrophes": // true
-			options.DeleteApostrophes = stringToBool(values[0])
-		case "expand_numex": // true
-			options.ExpandNumex = stringToBool(values[0])
-		case "roman_numerals": // true
-			options.RomanNumerals = stringToBool(values[0])
-		}
+	if langs, ok := queryParams["languages"]; ok {
+		options.Languages = langs
+	}
+	if val, ok := queryParams["latin_ascii"]; ok && len(val) > 0 {
+		options.LatinAscii = stringToBool(val[0])
+	}
+	if val, ok := queryParams["transliterate"]; ok && len(val) > 0 {
+		options.Transliterate = stringToBool(val[0])
+	}
+	if val, ok := queryParams["strip_accents"]; ok && len(val) > 0 {
+		options.StripAccents = stringToBool(val[0])
+	}
+	if val, ok := queryParams["lowercase"]; ok && len(val) > 0 {
+		options.Lowercase = stringToBool(val[0])
+	}
+	if val, ok := queryParams["trim_string"]; ok && len(val) > 0 {
+		options.TrimString = stringToBool(val[0])
+	}
+	if val, ok := queryParams["replace_word_hyphens"]; ok && len(val) > 0 {
+		options.ReplaceWordHyphens = stringToBool(val[0])
+	}
+	if val, ok := queryParams["delete_word_hyphens"]; ok && len(val) > 0 {
+		options.DeleteWordHyphens = stringToBool(val[0])
+	}
+	if val, ok := queryParams["replace_numeric_hyphens"]; ok && len(val) > 0 {
+		options.ReplaceNumericHyphens = stringToBool(val[0])
+	}
+	if val, ok := queryParams["delete_numeric_hyphens"]; ok && len(val) > 0 {
+		options.DeleteNumericHyphens = stringToBool(val[0])
+	}
+	if val, ok := queryParams["split_alpha_from_numeric"]; ok && len(val) > 0 {
+		options.SplitAlphaFromNumeric = stringToBool(val[0])
+	}
+	if val, ok := queryParams["delete_final_periods"]; ok && len(val) > 0 {
+		options.DeleteFinalPeriods = stringToBool(val[0])
+	}
+	if val, ok := queryParams["delete_acronym_periods"]; ok && len(val) > 0 {
+		options.DeleteAcronymPeriods = stringToBool(val[0])
+	}
+	if val, ok := queryParams["drop_english_possessives"]; ok && len(val) > 0 {
+		options.DropEnglishPossessives = stringToBool(val[0])
+	}
+	if val, ok := queryParams["delete_apostrophes"]; ok && len(val) > 0 {
+		options.DeleteApostrophes = stringToBool(val[0])
+	}
+	if val, ok := queryParams["expand_numex"]; ok && len(val) > 0 {
+		options.ExpandNumex = stringToBool(val[0])
+	}
+	if val, ok := queryParams["roman_numerals"]; ok && len(val) > 0 {
+		options.RomanNumerals = stringToBool(val[0])
 	}
 
 	if newComponents, found := parseAddressComponents(queryParams); found {
@@ -92,15 +105,16 @@ func parseAddressComponents(queryParams url.Values) (uint16, bool) {
 	var components uint16 = gopostalExpand.AddressNone
 	var found bool = false
 
-	for key := range queryParams {
-		// Look up the component constant for the given query parameter key.
-		if component, ok := queryParamToAddressComponent[key]; ok {
-			found = true
-			// If found, combine it with the existing components using bitwise OR.
-			components |= component
+	// Iterate over the valid keys we support, NOT the keys the user sent
+	for key, component := range queryParamToAddressComponent {
+		if values, ok := queryParams[key]; ok && len(values) > 0 {
+			// Ensure we check if the value actually evaluates to true
+			if stringToBool(values[0]) {
+				found = true
+				components |= component
+			}
 		}
 	}
-
 	return components, found
 }
 
