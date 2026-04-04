@@ -219,7 +219,15 @@ var rootCmd = &cobra.Command{
 		// If H2C is enabled in the config, wrap the router with the H2C handler
 		if viper.GetBool("h2c") {
 			log.Info().Msg("H2C (HTTP/2 Cleartext) enabled")
-			handler = h2c.NewHandler(r, &http2.Server{})
+			h2s := &http2.Server{
+				// How long the HTTP/2 connection can be completely idle before closing
+				IdleTimeout: 120 * time.Second,
+				// If there is no read activity, send a PING frame to the client
+				// to check if they are still alive
+				ReadIdleTimeout: 30 * time.Second,
+			}
+
+			handler = h2c.NewHandler(r, h2s)
 		}
 
 		srv := &http.Server{
