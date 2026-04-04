@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	gopostalExpand "github.com/openvenues/gopostal/expand"
@@ -127,6 +130,76 @@ func stringToBool(s string) bool {
 	return false
 }
 
+func SetupRouter() *gin.Engine {
+	r := gin.New()
+
+	r.UseH2C = viper.GetBool("h2c")
+	r.Use(gin.Recovery())
+	r.Use(ginzerolog.Logger("postal_server"))
+	if viper.IsSet("trusted_proxies") {
+		r.SetTrustedProxies(viper.GetStringSlice("trusted_proxies"))
+	}
+
+	// healthcheck endpoint
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+		})
+	})
+
+	// basic auth
+	if viper.IsSet("basic_auth_username") && viper.IsSet("basic_auth_password") {
+		r.Use(gin.BasicAuth(gin.Accounts{
+			viper.GetString("basic_auth_username"): viper.GetString("basic_auth_password"),
+		}))
+	}
+	// bearer token auth
+	if viper.IsSet("bearer_auth_token") {
+		r.Use(MiddlewareWithStaticToken(viper.GetString("bearer_auth_token")))
+	}
+
+	// expand libpostal
+	r.GET("/expand", func(c *gin.Context) {
+		queryParams := c.Request.URL.Query()
+		address := c.DefaultQuery("address", "")
+
+		options := gopostalExpand.GetDefaultExpansionOptions()
+		expansions := gopostalExpand.ExpandAddressOptions(
+			address,
+			mapQueryParamsOnExpandOptions(
+				options,
+				queryParams,
+			),
+		)
+		c.JSON(http.StatusOK, expansions)
+	})
+
+	// parse libpostal
+	r.GET("/parse", func(c *gin.Context) {
+		address := c.DefaultQuery("address", "")
+		language := c.DefaultQuery("language", "")
+		country := c.DefaultQuery("country", "")
+
+		parsed := gopostalParser.ParseAddressOptions(
+			address,
+			gopostalParser.ParserOptions{
+				Language: language,
+				Country:  country,
+			},
+		)
+		c.JSON(http.StatusOK, parsed)
+	})
+
+	// root
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"version": Version,
+		})
+	})
+
+	return r
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:                   "postal_server",
@@ -138,73 +211,35 @@ var rootCmd = &cobra.Command{
 	TraverseChildren:      true,
 	Long:                  `Postal web server that grants access to the libpostal library, enabling the parsing and normalization of street addresses globally`,
 	Run: func(cmd *cobra.Command, args []string) {
-		r := gin.New()
+		r := SetupRouter()
 
-		r.UseH2C = viper.GetBool("h2c")
-		r.Use(gin.Recovery())
-		r.Use(ginzerolog.Logger("postal_server"))
-		if viper.IsSet("trusted_proxies") {
-			r.SetTrustedProxies(viper.GetStringSlice("trusted_proxies"))
+		srv := &http.Server{
+			Addr:    fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port")),
+			Handler: r,
 		}
 
-		// healthcheck endpoint
-		r.GET("/health", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-			})
-		})
+		go func() {
+			log.Info().Msgf("Starting server on %s", srv.Addr)
+			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Fatal().Err(err).Msg("listen failed")
+			}
+		}()
 
-		// basic auth
-		if viper.IsSet("basic_auth_username") && viper.IsSet("basic_auth_password") {
-			r.Use(gin.BasicAuth(gin.Accounts{
-				viper.GetString("basic_auth_username"): viper.GetString("basic_auth_password"),
-			}))
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		// Block until we receive our signal
+		<-quit
+
+		log.Info().Msg("Shutting down server...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Fatal().Err(err).Msg("Server forced to shutdown")
 		}
-		// bearer token auth
-		if viper.IsSet("bearer_auth_token") {
-			r.Use(MiddlewareWithStaticToken(viper.GetString("bearer_auth_token")))
-		}
 
-		// expand libpostal
-		r.GET("/expand", func(c *gin.Context) {
-			queryParams := c.Request.URL.Query()
-			address := c.DefaultQuery("address", "")
-
-			options := gopostalExpand.GetDefaultExpansionOptions()
-			expansions := gopostalExpand.ExpandAddressOptions(
-				address,
-				mapQueryParamsOnExpandOptions(
-					options,
-					queryParams,
-				),
-			)
-			c.JSON(http.StatusOK, expansions)
-		})
-
-		// parse libpostal
-		r.GET("/parse", func(c *gin.Context) {
-			address := c.DefaultQuery("address", "")
-			language := c.DefaultQuery("language", "")
-			country := c.DefaultQuery("country", "")
-
-			parsed := gopostalParser.ParseAddressOptions(
-				address,
-				gopostalParser.ParserOptions{
-					Language: language,
-					Country:  country,
-				},
-			)
-			c.JSON(http.StatusOK, parsed)
-		})
-
-		// root
-		r.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"version": Version,
-			})
-		})
-
-		r.Run(fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port")))
+		log.Info().Msg("Server exiting")
 	},
 }
 

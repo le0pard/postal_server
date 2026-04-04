@@ -1,6 +1,6 @@
 module github.com/le0pard/postal_server
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/dn365/gin-zerolog v0.0.0-20171227063204-b43714b00db1
