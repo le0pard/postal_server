@@ -30,8 +30,8 @@ func TestParseAddressComponents(t *testing.T) {
 
 		components, found := parseAddressComponents(queryParams)
 		assert.True(t, found)
-		// Assuming gopostalExpand.AddressName is a bitmask flag
-		assert.Equal(t, gopostalExpand.AddressName, components)
+		// Explicitly cast to uint16
+		assert.Equal(t, uint16(gopostalExpand.AddressName), components)
 	})
 
 	t.Run("Multiple Components", func(t *testing.T) {
@@ -43,7 +43,8 @@ func TestParseAddressComponents(t *testing.T) {
 
 		components, found := parseAddressComponents(queryParams)
 		assert.True(t, found)
-		expected := gopostalExpand.AddressStreet | gopostalExpand.AddressPoBox
+		// Explicitly cast the combined bitmask to uint16
+		expected := uint16(gopostalExpand.AddressStreet | gopostalExpand.AddressPoBox)
 		assert.Equal(t, expected, components)
 	})
 
@@ -54,7 +55,8 @@ func TestParseAddressComponents(t *testing.T) {
 
 		components, found := parseAddressComponents(queryParams)
 		assert.False(t, found)
-		assert.Equal(t, gopostalExpand.AddressNone, components)
+		// Explicitly cast to uint16
+		assert.Equal(t, uint16(gopostalExpand.AddressNone), components)
 	})
 }
 
