@@ -60,6 +60,65 @@ func TestParseAddressComponents(t *testing.T) {
 	})
 }
 
+func TestExpandRoute(t *testing.T) {
+	router := SetupRouter()
+
+	t.Run("Basic Expansion", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		// URL encode the address to simulate a real client request
+		address := url.QueryEscape("781 Franklin Ave")
+		req, _ := http.NewRequest(http.MethodGet, "/expand?address="+address, nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response []string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, response)
+
+		// libpostal should normalize and expand "Ave" to "avenue"
+		assert.Contains(t, response, "781 franklin avenue")
+	})
+
+	t.Run("Expansion with Parameters", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		// Test with extra parameters like turning off lowercase
+		// (which is true by default in libpostal)
+		query := "?address=" + url.QueryEscape("781 Franklin Ave") + "&lowercase=false"
+		req, _ := http.NewRequest(http.MethodGet, "/expand"+query, nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response []string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, response)
+
+		// Because lowercase=false, the output should maintain capitalization
+		assert.Contains(t, response, "781 Franklin avenue")
+	})
+
+	t.Run("Empty Address", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/expand?address=", nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response []string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		// Passing an empty address should safely return an empty JSON array
+		assert.Empty(t, response)
+	})
+}
+
 func TestHealthCheckRoute(t *testing.T) {
 	router := SetupRouter()
 
