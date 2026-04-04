@@ -1,7 +1,7 @@
 # ==========================================
 # Stage 1: Builder
 # ==========================================
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.26-trixie AS builder
 
 # args
 ARG TARGETARCH
@@ -46,8 +46,8 @@ RUN go build -trimpath -ldflags="-s -w -X github.com/le0pard/postal_server/versi
 # ==========================================
 # Stage 2: Final Runtime
 # ==========================================
-# Use a slim debian image that matches the builder's OS (bookworm) to avoid glibc version mismatches
-FROM debian:bookworm-slim
+# Use a slim debian image that matches the builder's OS (trixie) to avoid glibc version mismatches
+FROM debian:trixie-slim
 
 ARG GIN_MODE=release
 ENV GIN_MODE=${GIN_MODE}
