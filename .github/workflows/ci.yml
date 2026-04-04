@@ -35,7 +35,7 @@ jobs:
       # re-download 2GB of ML data and recompile C code on every PR
       - name: Cache libpostal
         id: cache-libpostal
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/postal_install
