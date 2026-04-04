@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Install libpostal build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -yq --no-install-recommends \
+            curl autoconf automake libtool pkg-config
+
+      # We cache libpostal to a local directory so we don't have to
+      # re-download 2GB of ML data and recompile C code on every PR
+      - name: Cache libpostal
+        id: cache-libpostal
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/postal_install
+            ~/postal_data
+          key: ${{ runner.os }}-libpostal-v1
+
+      - name: Build and install libpostal
+        if: steps.cache-libpostal.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/openvenues/libpostal /tmp/libpostal
+          cd /tmp/libpostal
+          ./bootstrap.sh
+          # Install to the runner's home directory so actions/cache can easily save it without sudo
+          ./configure --prefix=$HOME/postal_install --datadir=$HOME/postal_data
+          make -j4
+          make install
+
+      - name: Run tests
+        run: |
+          # Tell CGO where to find the locally cached libpostal headers and shared libraries
+          export PKG_CONFIG_PATH=$HOME/postal_install/lib/pkgconfig
+          export CGO_CFLAGS="-I$HOME/postal_install/include"
+          export CGO_LDFLAGS="-L$HOME/postal_install/lib"
+          export LD_LIBRARY_PATH=$HOME/postal_install/lib
+
+          # Run tests with race detector and coverage
+          CGO_ENABLED=1 go test -v -race -cover ./...
