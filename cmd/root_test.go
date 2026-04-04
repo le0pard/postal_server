@@ -15,13 +15,8 @@ import (
 )
 
 func init() {
-	// 1. Put Gin into TestMode to suppress "[GIN-debug]" warnings
 	gin.SetMode(gin.TestMode)
-
-	// 2. Replace the global zerolog logger with a No-Op (no operation) logger
 	log.Logger = zerolog.Nop()
-
-	// 3. Alternatively/Additionally, disable logging globally
 	zerolog.SetGlobalLevel(zerolog.Disabled)
 }
 
