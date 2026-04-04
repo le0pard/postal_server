@@ -1,4 +1,4 @@
-# Postal web server
+# Postal web server [![CI](https://github.com/le0pard/postal_server/actions/workflows/ci.yml/badge.svg)](https://github.com/le0pard/postal_server/actions/workflows/ci.yml)
 
 This Docker image provides a web server that grants access to the [libpostal](https://github.com/openvenues/libpostal) library, enabling the parsing and normalization of street addresses globally. It need at least 2Gb of RAM (use 4GB for safety)
 
