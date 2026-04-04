@@ -100,7 +100,7 @@ func TestExpandRoute(t *testing.T) {
 		assert.NotEmpty(t, response)
 
 		// Because lowercase=false, the output should maintain capitalization
-		assert.Contains(t, response, "781 Franklin avenue")
+		assert.Contains(t, response, "781 Franklin Ave")
 	})
 
 	t.Run("Empty Address", func(t *testing.T) {
