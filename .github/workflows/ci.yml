@@ -10,7 +10,9 @@ jobs:
   test:
     name: Run Go Tests
     runs-on: ubuntu-latest
-
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
