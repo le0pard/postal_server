@@ -7,9 +7,23 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	gopostalExpand "github.com/openvenues/gopostal/expand"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	// 1. Put Gin into TestMode to suppress "[GIN-debug]" warnings
+	gin.SetMode(gin.TestMode)
+
+	// 2. Replace the global zerolog logger with a No-Op (no operation) logger
+	log.Logger = zerolog.Nop()
+
+	// 3. Alternatively/Additionally, disable logging globally
+	zerolog.SetGlobalLevel(zerolog.Disabled)
+}
 
 func TestStringToBool(t *testing.T) {
 	assert.True(t, stringToBool("true"))
