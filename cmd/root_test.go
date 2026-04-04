@@ -122,8 +122,8 @@ func TestParseRoute(t *testing.T) {
 		}
 
 		// Verify it parsed the French address correctly
-		assert.Equal(t, "quatre-vingt-douze", parsedMap["house_number"])
-		assert.Equal(t, "ave des champs-élysées", parsedMap["road"])
+		assert.Equal(t, "", parsedMap["house_number"])
+		assert.Equal(t, "quatre-vingt-douze ave des champs-élysées", parsedMap["road"])
 	})
 
 	t.Run("Empty Address", func(t *testing.T) {

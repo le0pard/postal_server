@@ -14,6 +14,8 @@ import (
 
 	gopostalExpand "github.com/openvenues/gopostal/expand"
 	gopostalParser "github.com/openvenues/gopostal/parser"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 
 	ginzerolog "github.com/dn365/gin-zerolog"
 	"github.com/gin-gonic/gin"
@@ -133,7 +135,6 @@ func stringToBool(s string) bool {
 func SetupRouter() *gin.Engine {
 	r := gin.New()
 
-	r.UseH2C = viper.GetBool("h2c")
 	r.Use(gin.Recovery())
 	r.Use(ginzerolog.Logger("postal_server"))
 	if viper.IsSet("trusted_proxies") {
@@ -213,9 +214,17 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		r := SetupRouter()
 
+		var handler http.Handler = r
+
+		// If H2C is enabled in the config, wrap the router with the H2C handler
+		if viper.GetBool("h2c") {
+			log.Info().Msg("H2C (HTTP/2 Cleartext) enabled")
+			handler = h2c.NewHandler(r, &http2.Server{})
+		}
+
 		srv := &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port")),
-			Handler: r,
+			Handler: handler, // Pass the dynamically wrapped handler here
 		}
 
 		go func() {
