@@ -12,7 +12,6 @@ permissions:
   id-token: write
 
 env:
-  GO_VERSION: 1.26.1
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
