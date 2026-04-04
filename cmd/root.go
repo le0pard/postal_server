@@ -223,8 +223,11 @@ var rootCmd = &cobra.Command{
 		}
 
 		srv := &http.Server{
-			Addr:    fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port")),
-			Handler: handler, // Pass the dynamically wrapped handler here
+			Addr:         fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port")),
+			Handler:      handler,
+			ReadTimeout:  30 * time.Second,  // Max time to read request headers/body
+			WriteTimeout: 30 * time.Second,  // Max time to process and send the response
+			IdleTimeout:  120 * time.Second, // Max time to keep a Keep-Alive connection open
 		}
 
 		go func() {
