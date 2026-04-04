@@ -69,6 +69,79 @@ func TestParseAddressComponents(t *testing.T) {
 	})
 }
 
+func TestParseRoute(t *testing.T) {
+	router := SetupRouter()
+
+	t.Run("Basic Parsing", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		// URL encode the address from your README
+		address := url.QueryEscape("781 Franklin Ave Crown Heights Brooklyn NY 11216 USA")
+		req, _ := http.NewRequest(http.MethodGet, "/parse?address="+address, nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		// The parse endpoint returns an array of label/value objects
+		var response []map[string]string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, response)
+
+		// Create a quick lookup map to easily assert the parsed components
+		parsedMap := make(map[string]string)
+		for _, component := range response {
+			parsedMap[component["label"]] = component["value"]
+		}
+
+		// Verify libpostal correctly identified the parts of the address
+		assert.Equal(t, "781", parsedMap["house_number"])
+		assert.Equal(t, "franklin ave", parsedMap["road"])
+		assert.Equal(t, "11216", parsedMap["postcode"])
+		assert.Equal(t, "usa", parsedMap["country"])
+	})
+
+	t.Run("Parsing with Language and Country Parameters", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		query := "?address=" + url.QueryEscape("Quatre-vingt-douze Ave des Champs-Élysées") + "&language=fr&country=fr"
+		req, _ := http.NewRequest(http.MethodGet, "/parse"+query, nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response []map[string]string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		assert.NotEmpty(t, response)
+
+		parsedMap := make(map[string]string)
+		for _, component := range response {
+			parsedMap[component["label"]] = component["value"]
+		}
+
+		// Verify it parsed the French address correctly
+		assert.Equal(t, "quatre-vingt-douze", parsedMap["house_number"])
+		assert.Equal(t, "ave des champs-élysées", parsedMap["road"])
+	})
+
+	t.Run("Empty Address", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/parse?address=", nil)
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response []map[string]string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.Nil(t, err)
+		// Passing an empty address should safely return an empty array
+		assert.Empty(t, response)
+	})
+}
+
 func TestExpandRoute(t *testing.T) {
 	router := SetupRouter()
 
